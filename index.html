@@ -111,11 +111,9 @@ var createScene = async function () {
     xrTest.onHitTestResultObservable.add((results) => {
         if (results.length) {
             hitTest = results[0];
-            if (check === false) {
-                hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
-                marker.scaling = marker.scaling.scale(0.005);
-                marker.isVisible = true;
-            }
+            hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
+            marker.scaling = marker.scaling.scale(0.005);
+            marker.isVisible = true;
         } else {
             hitTest = undefined;
             marker.isEnabled(false);
@@ -126,11 +124,8 @@ var createScene = async function () {
 
     if (anchors) {
         anchors.onAnchorAddedObservable.add(anchor => {
-            if (check === false) {
-                marker.scaling = marker.scaling.scale(0.005);
-                anchor.attachedNode = marker;
-                check = true;
-            }
+            marker.scaling = marker.scaling.scale(0.005);
+            anchor.attachedNode = marker;
         })
 
         anchors.onAnchorRemovedObservable.add(anchor => {

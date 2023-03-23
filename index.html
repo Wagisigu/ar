@@ -135,18 +135,14 @@ var createScene = async function () {
                 hitTest.transformationMatrix.decompose(undefined, model.rotationQuaternion, model.position);
                 hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
                 marker.scaling = marker.scaling.scale(0.005);
-                model.position.y = + 0.2;
                 model.scaling = new BABYLON.Vector3(0.0025, 0.0025, 0.0025);
                 model.isVisible = true;
                 model.visibility = 0.5;
-                marker.isVisible = true;
             } else {
                 hitTest.transformationMatrix.decompose(model.scaling, model.rotationQuaternion, model.position);
                 model.scaling = model.scaling.scale(0.005);
                 model.isVisible = true;
                 model.visibility = 1;
-                marker.isVisible = false;
-                marker.isEnabled(false);
             }
         } else {
             hitTest = undefined;

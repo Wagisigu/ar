@@ -135,10 +135,7 @@ var createScene = async function () {
 
     scene.onPointerDown = (evt, pickInfo) => {
         if (hitTest && anchors && xr.baseExperience.state === BABYLON.WebXRState.IN_XR) {
-            if (check) {
-            } else {
-                anchors.addAnchorPointUsingHitTestResultAsync(hitTest);
-            }
+            anchors.addAnchorPointUsingHitTestResultAsync(hitTest);
         }
     }
 

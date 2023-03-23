@@ -138,7 +138,7 @@ var createScene = async function () {
                 hitTest.transformationMatrix.decompose(undefined, model.rotationQuaternion, model.position);
                 hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
                 model.position.y = + 0.2;
-                model.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+                model.scaling = new BABYLON.Vector3(0.005, 0.005, 0.005);
                 model.isVisible = true;
                 model.visibility = 0.5;
                 marker.isVisible = true;

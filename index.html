@@ -147,7 +147,7 @@ var createScene = async function () {
                 hitTest.transformationMatrix.decompose(model.scaling, model.rotationQuaternion, model.position);
                 model.scaling = model.scaling.scale(0.005);
                 model.isVisible = true;
-                model.visibility = 1;
+                // model.visibility = 1;
                 marker.isVisible = false;
                 marker.isEnabled(false);
             }

@@ -103,25 +103,25 @@ var createScene = async function () {
     const anchors = fm.enableFeature(BABYLON.WebXRAnchorSystem, 'latest');
     const xrBackgroundRemover = fm.enableFeature(BABYLON.WebXRBackgroundRemover.Name);
 
-    let min = model.getBoundingInfo().boundingBox.minimumWorld;
-    let max = model.getBoundingInfo().boundingBox.maximumWorld;
+    // let min = model.getBoundingInfo().boundingBox.minimumWorld;
+    // let max = model.getBoundingInfo().boundingBox.maximumWorld;
     
-    let halfSize = model.getBoundingInfo().boundingBox.extendSize;
-	let size = halfSize.scale(2);
+    // let halfSize = model.getBoundingInfo().boundingBox.extendSize;
+	// let size = halfSize.scale(2);
 
-    let width = size.x + 0.1;
-    let depth = size.z + 0.1;
-    let positionY = model.getBoundingInfo().boundingBox.minimumWorld.y;
+    // let width = size.x + 0.1;
+    // let depth = size.z + 0.1;
+    // let positionY = model.getBoundingInfo().boundingBox.minimumWorld.y;
 
-    var marker;
-    await BABYLON.SceneLoader.ImportMeshAsync("", "./1963_chevrolet_corvette_c2/", "scene.gltf", scene).then((result) => {
-        marker = result.meshes[0];
-        marker.scaling = new BABYLON.Vector3(.005, .005, .005);
-        marker.position.y = positionY;
-        marker.material = new BABYLON.StandardMaterial("sm", scene);
-        marker.material.alpha = 0;
-        marker.isVisible = false;
-    });
+    // var marker;
+    // await BABYLON.SceneLoader.ImportMeshAsync("", "./1963_chevrolet_corvette_c2/", "scene.gltf", scene).then((result) => {
+    //     marker = result.meshes[0];
+    //     marker.scaling = new BABYLON.Vector3(.005, .005, .005);
+    //     marker.position.y = positionY;
+    //     marker.material = new BABYLON.StandardMaterial("sm", scene);
+    //     marker.material.alpha = 0;
+    //     marker.isVisible = false;
+    // });
 
     //hitTest
 
@@ -133,9 +133,9 @@ var createScene = async function () {
             hitTest = results[0];
             if (check === false) {
                 hitTest.transformationMatrix.decompose(undefined, model.rotationQuaternion, model.position);
-                hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
-                marker.scaling = marker.scaling.scale(0.005);
-                model.scaling = new BABYLON.Vector3(0.0025, 0.0025, 0.0025);
+                // hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
+                // marker.scaling = marker.scaling.scale(0.005);
+                // model.scaling = new BABYLON.Vector3(0.0025, 0.0025, 0.0025);
                 model.isVisible = true;
                 model.visibility = 0.5;
             } else {
@@ -146,7 +146,7 @@ var createScene = async function () {
             }
         } else {
             hitTest = undefined;
-            marker.isVisible = false;
+            // marker.isVisible = false;
             model.isVisible = false;
         }
     });

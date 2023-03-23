@@ -109,6 +109,7 @@ var createScene = async function () {
     let check = false;
 
     xrTest.onHitTestResultObservable.add((results) => {
+        if (anchor.attachedNode) anchor.attachedNode.scaling = marker.scaling.scale(0.005);
         if (results.length) {
             hitTest = results[0];
             hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
@@ -124,6 +125,7 @@ var createScene = async function () {
 
     if (anchors) {
         anchors.onAnchorAddedObservable.add(anchor => {
+            anchor.attachedNode = marker.clone("");
         })
 
         anchors.onAnchorRemovedObservable.add(anchor => {

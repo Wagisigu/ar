@@ -124,8 +124,6 @@ var createScene = async function () {
 
     if (anchors) {
         anchors.onAnchorAddedObservable.add(anchor => {
-            marker.scaling = marker.scaling.scale(0.005);
-            anchor.attachedNode = marker;
         })
 
         anchors.onAnchorRemovedObservable.add(anchor => {

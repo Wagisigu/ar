@@ -127,8 +127,7 @@ var createScene = async function () {
     if (anchors) {
         anchors.onAnchorAddedObservable.add(anchor => {
             carPlaced = true;
-            anchor.attachedNode = model.clone("");
-            model.isEnabled(false);
+            anchor.attachedNode = model;
         })
 
         anchors.onAnchorRemovedObservable.add(anchor => {

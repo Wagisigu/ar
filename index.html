@@ -65,110 +65,106 @@
  */
 
 var createScene = async function () {
-
-    // This creates a basic Babylon Scene object (non-mesh)
+    // Create a scene.
     var scene = new BABYLON.Scene(engine);
+    const camera = new BABYLON.ArcRotateCamera("camera", Math.PI/2, Math.PI / 2.5, 15, new BABYLON.Vector3(0, 0, 0));
+        camera.attachControl(canvas);
+        camera.useFramingBehavior = true;
+        camera.upperRadiusLimit = 10;
+        camera.lowerRadiusLimit = 0.5;
+        camera.useNaturalPinchZoom = true;
+        camera.framingBehavior.framingTime = 0;
+        camera.framingBehavior.elevationReturnTime = -1;
+        camera.useAutoRotationBehavior = true;
+        camera.autoRotationBehavior.idleRotationSpeed = 0.1;
 
-    // This creates and positions a free camera (non-mesh)
-    var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 1, -5), scene);
+    scene.clearColor = new BABYLON.Color3(0.85, 0.85, 0.85);
+    var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
+    var helper = scene.createDefaultEnvironment({
+        createSkybox: false,
+        createGround: false,
+    });
 
-    // This targets the camera to scene origin
-    camera.setTarget(BABYLON.Vector3.Zero());
-
-    // This attaches the camera to the canvas
-    camera.attachControl(canvas, true);
-
-    // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-    var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-
-    // Default intensity is 1. Let's dim the light a small amount
-    light.intensity = 0.7;
-
-    var dirLight = new BABYLON.DirectionalLight('light', new BABYLON.Vector3(0, -1, -0.5), scene);
-    dirLight.position = new BABYLON.Vector3(0, 5, -5);
-
-    var shadowGenerator = new BABYLON.ShadowGenerator(1024, dirLight);
-    shadowGenerator.useBlurExponentialShadowMap = true;
-    shadowGenerator.blurKernel = 32;
-
-    const model = await BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/Wagisigu/babylon/main/Assets/Models/1968_chevrolet_impala/", "scene.gltf", scene);
-
-    var xr = await scene.createDefaultXRExperienceAsync({
+    var model;
+    await BABYLON.SceneLoader.ImportMeshAsync("", "./1963_chevrolet_corvette_c2/", "scene.gltf", scene).then((result) => {
+        model = result.meshes[0];
+    });
+    
+    const xr = await scene.createDefaultXRExperienceAsync({
         uiOptions: {
             sessionMode: "immersive-ar",
-            referenceSpaceType: "local-floor"
         },
-        optionalFeatures: true
+        optionalFeatures: true,
     });
 
     const fm = xr.baseExperience.featuresManager;
-
-    const xrTest = fm.enableFeature(BABYLON.WebXRHitTest.Name, "latest");
-    const xrPlanes = fm.enableFeature(BABYLON.WebXRPlaneDetector.Name, "latest");
-    const anchors = fm.enableFeature(BABYLON.WebXRAnchorSystem.Name, 'latest');
-
+    const xrTest = fm.enableFeature(BABYLON.WebXRHitTest, "latest");
+    const anchors = fm.enableFeature(BABYLON.WebXRAnchorSystem, 'latest');
     const xrBackgroundRemover = fm.enableFeature(BABYLON.WebXRBackgroundRemover.Name);
 
-    let b = model.meshes[0];//BABYLON.CylinderBuilder.CreateCylinder('cylinder', { diameterBottom: 0.2, diameterTop: 0.4, height: 0.5 });
-    b.rotationQuaternion = new BABYLON.Quaternion();
-    // b.isVisible = false;
-    shadowGenerator.addShadowCaster(b, true);
+    let min = model.getBoundingInfo().boundingBox.minimumWorld;
+    let max = model.getBoundingInfo().boundingBox.maximumWorld;
+    
+    let halfSize = model.getBoundingInfo().boundingBox.extendSize;
+	let size = halfSize.scale(2);
 
-    const marker = BABYLON.MeshBuilder.CreateTorus('marker', { diameter: 0.15, thickness: 0.05 });
-    marker.isVisible = false;
-    marker.rotationQuaternion = new BABYLON.Quaternion();
+    let width = size.x + 0.1;
+    let depth = size.z + 0.1;
+    let positionY = model.getBoundingInfo().boundingBox.minimumWorld.y;
 
-    var skeleton = model.skeletons[0];
+    var marker;
+    await BABYLON.SceneLoader.ImportMeshAsync("", "./1963_chevrolet_corvette_c2/", "scene.gltf", scene).then((result) => {
+        marker = result.meshes[0];
+        marker.position.y = positionY;
+        marker.material = new BABYLON.StandardMaterial("sm", scene);
+        marker.material.alpha = 0;
+        marker.enableEdgesRendering(); 
+        marker.edgesWidth = 1.0;
+        marker.edgesColor = new BABYLON.Color4(0, 0, 1, 1);
+        marker.isVisible = false;
+    });
 
-    // ROBOT
-    skeleton.animationPropertiesOverride = new BABYLON.AnimationPropertiesOverride();
-    skeleton.animationPropertiesOverride.enableBlending = true;
-    skeleton.animationPropertiesOverride.blendingSpeed = 0.05;
-    skeleton.animationPropertiesOverride.loopMode = 1;
-
-    var idleRange = skeleton.getAnimationRange("YBot_Idle");
-    var walkRange = skeleton.getAnimationRange("YBot_Walk");
-    var runRange = skeleton.getAnimationRange("YBot_Run");
-    var leftRange = skeleton.getAnimationRange("YBot_LeftStrafeWalk");
-    var rightRange = skeleton.getAnimationRange("YBot_RightStrafeWalk");
-    scene.beginAnimation(skeleton, idleRange.from, idleRange.to, true);
+    //hitTest
 
     let hitTest;
-
-    b.isVisible = false;
+    let check = false;
 
     xrTest.onHitTestResultObservable.add((results) => {
         if (results.length) {
-            marker.isVisible = true;
             hitTest = results[0];
-            hitTest.transformationMatrix.decompose(undefined, b.rotationQuaternion, b.position);
-            hitTest.transformationMatrix.decompose(undefined, marker.rotationQuaternion, marker.position);
+            if (check === false) {
+                hitTest.transformationMatrix.decompose(undefined, model.rotationQuaternion, model.position);
+                hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
+                model.position.y = + 0.2;
+                model.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+                model.isVisible = true;
+                model.visibility = 0.5;
+                marker.isVisible = true;
+            } else {
+                hitTest.transformationMatrix.decompose(model.scaling, model.rotationQuaternion, model.position);
+                model.isVisible = true;
+                model.visibility = 1;
+                marker.isVisible = false;
+            }
         } else {
-            marker.isVisible = false;
             hitTest = undefined;
+            marker.isVisible = false;
+            model.isVisible = false;
         }
     });
-    const mat1 = new BABYLON.StandardMaterial('1', scene);
-    mat1.diffuseColor = BABYLON.Color3.Red();
-    const mat2 = new BABYLON.StandardMaterial('1', scene);
-    mat2.diffuseColor = BABYLON.Color3.Blue();
+
+    //Anchors
 
     if (anchors) {
-        console.log('anchors attached');
         anchors.onAnchorAddedObservable.add(anchor => {
-            console.log('attaching', anchor);
-            b.isVisible = true;
-            anchor.attachedNode = b.clone("mensch");
-            anchor.attachedNode.skeleton = skeleton.clone('skelet');
-            shadowGenerator.addShadowCaster(anchor.attachedNode, true);
-            scene.beginAnimation(anchor.attachedNode.skeleton, idleRange.from, idleRange.to, true);
-            b.isVisible = false;
+            if (check === false) {
+                anchor.attachedNode = model;
+                check = true;
+            }
         })
 
         anchors.onAnchorRemovedObservable.add(anchor => {
-            console.log('disposing', anchor);
             if (anchor) {
-                anchor.attachedNode.isVisible = false;
                 anchor.attachedNode.dispose();
             }
         });
@@ -180,64 +176,7 @@ var createScene = async function () {
         }
     }
 
-    const planes = [];
-
-    xrPlanes.onPlaneAddedObservable.add(plane => {
-        plane.polygonDefinition.push(plane.polygonDefinition[0]);
-        var polygon_triangulation = new BABYLON.PolygonMeshBuilder("name", plane.polygonDefinition.map((p) => new BABYLON.Vector2(p.x, p.z)), scene);
-        var polygon = polygon_triangulation.build(false, 0.01);
-        plane.mesh = polygon; //BABYLON.TubeBuilder.CreateTube("tube", { path: plane.polygonDefinition, radius: 0.02, sideOrientation: BABYLON.Mesh.FRONTSIDE, updatable: true }, scene);
-        //}
-        planes[plane.id] = (plane.mesh);
-        const mat = new BABYLON.StandardMaterial("mat", scene);
-        mat.alpha = 0.5;
-        mat.diffuseColor = BABYLON.Color3.Random();
-        polygon.createNormals();
-        // polygon.receiveShadows = true;
-        plane.mesh.material = mat;
-
-        plane.mesh.rotationQuaternion = new BABYLON.Quaternion();
-        plane.transformationMatrix.decompose(plane.mesh.scaling, plane.mesh.rotationQuaternion, plane.mesh.position);
-    });
-
-    xrPlanes.onPlaneUpdatedObservable.add(plane => {
-        let mat;
-        if (plane.mesh) {
-            mat = plane.mesh.material;
-            plane.mesh.dispose(false, false);
-        }
-        const some = plane.polygonDefinition.some(p => !p);
-        if (some) {
-            return;
-        }
-        plane.polygonDefinition.push(plane.polygonDefinition[0]);
-        var polygon_triangulation = new BABYLON.PolygonMeshBuilder("name", plane.polygonDefinition.map((p) => new BABYLON.Vector2(p.x, p.z)), scene);
-        var polygon = polygon_triangulation.build(false, 0.01);
-        polygon.createNormals();
-        plane.mesh = polygon;// BABYLON.TubeBuilder.CreateTube("tube", { path: plane.polygonDefinition, radius: 0.02, sideOrientation: BABYLON.Mesh.FRONTSIDE, updatable: true }, scene);
-        //}
-        planes[plane.id] = (plane.mesh);
-        plane.mesh.material = mat;
-        plane.mesh.rotationQuaternion = new BABYLON.Quaternion();
-        plane.transformationMatrix.decompose(plane.mesh.scaling, plane.mesh.rotationQuaternion, plane.mesh.position);
-        plane.mesh.receiveShadows = true;
-    })
-
-    xrPlanes.onPlaneRemovedObservable.add(plane => {
-        if (plane && planes[plane.id]) {
-            planes[plane.id].dispose()
-        }
-    })
-
-    xr.baseExperience.sessionManager.onXRSessionInit.add(() => {
-        planes.forEach(plane => plane.dispose());
-        while (planes.pop()) { };
-    });
-
-
-
     return scene;
-
 };
                 window.initFunction = async function() {
                     

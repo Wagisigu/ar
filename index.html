@@ -107,7 +107,7 @@ var createScene = async function () {
     //hitTest
 
     let hitTest;
-    let carPlaced = true;
+    let carPlaced = false;
 
     xrTest.onHitTestResultObservable.add((results) => {
         if (carPlaced) return;

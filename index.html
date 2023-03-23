@@ -138,7 +138,7 @@ var createScene = async function () {
     }
 
     scene.onPointerDown = (evt, pickInfo) => {
-        if (hitTest && anchors && xr.baseExperience.state === BABYLON.WebXRState.IN_XR) {
+        if (!carPlaced && hitTest && anchors && xr.baseExperience.state === BABYLON.WebXRState.IN_XR) {
             anchors.addAnchorPointUsingHitTestResultAsync(hitTest);
         }
     }

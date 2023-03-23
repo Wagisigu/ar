@@ -120,9 +120,6 @@ var createScene = async function () {
         marker.position.y = positionY;
         marker.material = new BABYLON.StandardMaterial("sm", scene);
         marker.material.alpha = 0;
-        marker.enableEdgesRendering();
-        marker.edgesWidth = 1.0;
-        marker.edgesColor = new BABYLON.Color4(0, 0, 1, 1);
         marker.isVisible = false;
     });
 

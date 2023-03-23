@@ -88,7 +88,7 @@ var createScene = async function () {
     var model;
     await BABYLON.SceneLoader.ImportMeshAsync("", "./1963_chevrolet_corvette_c2/", "scene.gltf", scene).then((result) => {
         model = result.meshes[0];
-        model.scaling = new BABYLON.Vector3(.005, .005, .005);
+        model.scaling = model.scaling.scale(0.005);
     });
     
     const xr = await scene.createDefaultXRExperienceAsync({
@@ -116,7 +116,7 @@ var createScene = async function () {
     var marker;
     await BABYLON.SceneLoader.ImportMeshAsync("", "./1963_chevrolet_corvette_c2/", "scene.gltf", scene).then((result) => {
         marker = result.meshes[0];
-        marker.scaling = new BABYLON.Vector3(.005, .005, .005);
+        marker.scaling = marker.scaling.scale(0.005);
         marker.position.y = positionY;
         marker.material = new BABYLON.StandardMaterial("sm", scene);
         marker.material.alpha = 0;
